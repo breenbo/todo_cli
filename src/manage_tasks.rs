@@ -1,5 +1,4 @@
-use anyhow::Result;
-mod manage_db;
+use crate::manage_db::DB_URL;
 
 pub fn add_task(task_name: Option<String>) {
     if task_name.is_none() {
@@ -10,9 +9,8 @@ pub fn add_task(task_name: Option<String>) {
     println!("add a task: {}", name);
 }
 
-pub async fn list_tasks() -> Result<()> {
-    manage_db::create_table().await?;
-    println!("list all tasks");
+pub async fn list_tasks() -> anyhow::Result<()> {
+    println!("list all tasks {}", DB_URL);
 
     Ok(())
 }

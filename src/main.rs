@@ -1,6 +1,6 @@
-use anyhow::Result;
 use clap::Parser;
 
+mod manage_db;
 mod manage_tasks;
 
 /// Simple todo cli app
@@ -8,7 +8,7 @@ mod manage_tasks;
 #[command(author = "Bruno Berrehuel", version, about, long_about = None)]
 struct UserCommand {
     #[arg(short, long)]
-    command: String,
+    command: Option<String>,
 
     /// the task to add
     #[arg(short, long)]
@@ -20,15 +20,19 @@ struct UserCommand {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
+    manage_db::check_db().await?;
+    manage_db::create_table().await?;
+
     let args = UserCommand::parse();
 
-    match args.command.as_str() {
-        "add" => manage_tasks::add_task(args.task_name),
-        "list" => manage_tasks::list_tasks().await?,
-        "del" => manage_tasks::delete_task(args.id),
-        "done" => manage_tasks::task_done(args.id),
-        _ => println!("command should be add, del, done, list"),
+    // as_deref to match an Option<String> with &str
+    match args.command.as_deref() {
+        Some("add") => manage_tasks::add_task(args.task_name),
+        Some("del") => manage_tasks::delete_task(args.id),
+        Some("done") => manage_tasks::task_done(args.id),
+        None => manage_tasks::list_tasks().await?,
+        _ => println!("Must use add, del, done or nothing"),
     };
 
     Ok(())
