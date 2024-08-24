@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Parser;
 
 mod manage_tasks;
@@ -15,17 +16,20 @@ struct UserCommand {
 
     /// id number of the task (delete)
     #[arg(short, long)]
-    task_id: Option<u32>,
+    id: Option<u32>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let args = UserCommand::parse();
 
     match args.command.as_str() {
         "add" => manage_tasks::add_task(args.task_name),
-        "list" => manage_tasks::list_tasks(),
-        "del" => manage_tasks::delete_task(args.task_id),
-        "done" => manage_tasks::task_done(args.task_id),
+        "list" => manage_tasks::list_tasks().await?,
+        "del" => manage_tasks::delete_task(args.id),
+        "done" => manage_tasks::task_done(args.id),
         _ => println!("command should be add, del, done, list"),
-    }
+    };
+
+    Ok(())
 }
