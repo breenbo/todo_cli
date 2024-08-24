@@ -34,7 +34,9 @@ async fn main() -> anyhow::Result<()> {
     match args.command.as_deref() {
         Some("add") => manage_tasks::add_task(args.task_name).await?,
         Some("del") => manage_tasks::delete_task(args.id).await?,
-        Some("done") => manage_tasks::task_done(args.id).await?,
+        Some("delete") => manage_tasks::delete_task(args.id).await?,
+        Some("done") => manage_tasks::task_done(args.id, "done").await?,
+        Some("todo") => manage_tasks::task_done(args.id, "todo").await?,
         Some("list") => manage_tasks::list_tasks(args.filter).await?,
         Some("update") => manage_tasks::update_task(args.id, args.task_name).await?,
         None => manage_tasks::list_tasks(None).await?,

@@ -27,7 +27,7 @@ pub async fn add_task(task_name: Option<String>) -> anyhow::Result<()> {
 struct Task {
     id: u32,
     task: String,
-    done: bool
+    status: String
 }
 
 pub async fn list_tasks(filter: Option<String>) -> anyhow::Result<()> {
@@ -35,9 +35,9 @@ pub async fn list_tasks(filter: Option<String>) -> anyhow::Result<()> {
 
     // NOTE: create query depending on the filter
     let query = match filter.as_deref() {
-        Some("done") => "SELECT id, task, done FROM todos WHERE done = TRUE",
-        Some("todo") => "SELECT id, task, done FROM todos WHERE done = FALSE",
-        None => "SELECT id, task, done FROM todos",
+        Some("done") => "SELECT id, task, status FROM todos WHERE status = 'done'",
+        Some("todo") => "SELECT id, task, status FROM todos WHERE status = 'todo'",
+        None => "SELECT id, task, status FROM todos",
         Some(_) => {
             println!("filter is 'done' / 'todo'");
             ""
@@ -60,12 +60,7 @@ pub async fn list_tasks(filter: Option<String>) -> anyhow::Result<()> {
     }
 
     for task in tasks {
-        let done = match task.done {
-            true => "done",
-            false => "todo"
-        };
-
-        println!("{}: {} {}", task.id, task.task, done)
+        println!("{}: {} {}", task.id, task.task, task.status)
     }
 
     db.close().await;
@@ -96,7 +91,7 @@ pub async fn delete_task(task_id: Option<u32>) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn task_done(task_id: Option<u32>) -> anyhow::Result<()> {
+pub async fn task_done(task_id: Option<u32>, status: &str) -> anyhow::Result<()> {
     if task_id.is_none() {
         println!("You must provide the task id to delete");
         return Ok(());
@@ -105,7 +100,8 @@ pub async fn task_done(task_id: Option<u32>) -> anyhow::Result<()> {
     let db = SqlitePool::connect(DB_URL).await?;
     let id = task_id.unwrap_or(0);
 
-    sqlx::query("UPDATE todos SET done = TRUE WHERE id = ?")
+    sqlx::query("UPDATE todos SET status = $1 WHERE id = $2")
+        .bind(status)
         .bind(id)
         .execute(&db)
         .await?;

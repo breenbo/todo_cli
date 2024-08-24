@@ -21,7 +21,7 @@ pub async fn create_table() -> anyhow::Result<()> {
         "CREATE TABLE IF NOT EXISTS todos (
             id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             task TEXT NOT NULL,
-            done BOOLEAN DEFAULT FALSE
+            status TEXT DEFAULT 'todo'
      );",
     )
     .execute(&db)
