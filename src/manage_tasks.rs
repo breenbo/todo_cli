@@ -2,13 +2,13 @@ use sqlx::{FromRow, SqlitePool};
 
 use crate::manage_db::DB_URL;
 
-pub async fn add_task(task_name: Option<String>) -> anyhow::Result<()> {
-    if task_name.is_none() {
-        println!("You mmust provide a task name");
-        return Ok(());
-    }
-    let name = task_name.unwrap_or("".to_string());
-    println!("add a task: {}", name);
+pub async fn add_task(name: String) -> anyhow::Result<()> {
+    // if task_name.is_none() {
+    //     println!("You mmust provide a task name");
+    //     return Ok(());
+    // }
+    // let name = task_name.unwrap_or("".to_string());
+    // println!("add a task: {}", name);
 
     let db = SqlitePool::connect(DB_URL).await?;
 
@@ -68,22 +68,22 @@ pub async fn list_tasks(filter: Option<String>) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn delete_task(task_id: Option<u32>) -> anyhow::Result<()> {
-    if task_id.is_none() {
-        println!("You must provide the task id to delete");
-        return Ok(());
-    }
+pub async fn delete_task(id: u32) -> anyhow::Result<()> {
+    // if task_id.is_none() {
+    //     println!("You must provide the task id to delete");
+    //     return Ok(());
+    // }
 
     let db = SqlitePool::connect(DB_URL).await?;
 
-    let id = task_id.unwrap_or(0);
+    // let id = task_id.unwrap_or(0);
     sqlx::query("DELETE FROM todos WHERE id = ?")
         .bind(id)
         .execute(&db)
         .await?;
 
     // get the value of an option
-    let id = task_id.unwrap_or(0);
+    // let id = task_id.unwrap_or(0);
     println!("delete task {}", id);
 
     db.close().await;
@@ -91,14 +91,14 @@ pub async fn delete_task(task_id: Option<u32>) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn task_done(task_id: Option<u32>, status: &str) -> anyhow::Result<()> {
-    if task_id.is_none() {
-        println!("You must provide the task id to delete");
-        return Ok(());
-    }
+pub async fn task_done(id: u32, status: &str) -> anyhow::Result<()> {
+    // if task_id.is_none() {
+    //     println!("You must provide the task id to delete");
+    //     return Ok(());
+    // }
+    // let id = task_id.unwrap_or(0);
 
     let db = SqlitePool::connect(DB_URL).await?;
-    let id = task_id.unwrap_or(0);
 
     sqlx::query("UPDATE todos SET status = $1 WHERE id = $2")
         .bind(status)
@@ -111,23 +111,23 @@ pub async fn task_done(task_id: Option<u32>, status: &str) -> anyhow::Result<()>
     Ok(())
 }
 
-pub async fn update_task(task_id: Option<u32>, task_name: Option<String>) -> anyhow::Result<()> {
-    if task_id.is_none() {
-        println!("must provide task id to update");
-        return Ok(());
-    }
-
-    if task_name.is_none() {
-        println!("must provide new task to update");
-        return Ok(())
-    }
+pub async fn update_task(id: u32, task: String) -> anyhow::Result<()> {
+    // if task_id.is_none() {
+    //     println!("must provide task id to update");
+    //     return Ok(());
+    // }
+    //
+    // if task_name.is_none() {
+    //     println!("must provide new task to update");
+    //     return Ok(())
+    // }
 
     let db = SqlitePool::connect(DB_URL).await?;
-    let id = task_id.unwrap_or(0);
-    let name = task_name.unwrap_or("".to_string());
+    // let id = task_id.unwrap_or(0);
+    // let name = task_name.unwrap_or("".to_string());
 
     sqlx::query("UPDATE todos SET task = $1 WHERE id = $2")
-        .bind(name)
+        .bind(task)
         .bind(id)
         .execute(&db)
         .await?;
